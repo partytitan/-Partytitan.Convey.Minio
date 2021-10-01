@@ -24,6 +24,10 @@ namespace Partytitan.Convey.Minio.Services
             if (!found)
             {
                 await _minioClient.MakeBucketAsync(_minioOptions.ContainerName);
+
+                // Make bucket public
+                var policyString = "`\r\n{\r\n  \"Version\": \"2012-10-17\",\r\n  \"Statement\": [\r\n    {\r\n      \"Action\": \"s3:GetObject\",\r\n      \"Effect\": \"Allow\",\r\n      \"Principal\": {\"AWS\": \"*\"},\r\n      \"Resource\": [\"arn:aws:s3:::" + _minioOptions.ContainerName + "/*\"],\r\n      \"Sid\": \"Public\"\r\n    }\r\n  ]\r\n}";
+                await _minioClient.SetPolicyAsync(_minioOptions.ContainerName, policyString);
             }
 
             var meta = new Dictionary<string, string>()
